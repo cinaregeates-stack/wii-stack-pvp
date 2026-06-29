@@ -14,19 +14,20 @@ jobs:
       
       - name: Build
         run: |
+          # Ortam değişkenlerini konteynerin içine sabitle
           export DEVKITPRO=/opt/devkitpro
-          # Sadece derlemeyi değil, kütüphane yollarını da ekrana yazdırıyoruz
-          echo "Kütüphane yolu: $DEVKITPRO/libogc/include"
+          export DEVKITPPC=/opt/devkitpro/devkitPPC
+          export LIBOGC_INC=/opt/devkitpro/libogc/include
+          export LIBOGC_LIB=/opt/devkitpro/libogc/lib/wii
           
-          # HATA AYIKLAMA: Derleyiciyi daha detaylı (verbose) çalıştır
-          /opt/devkitpro/devkitPPC/bin/powerpc-eabi-g++ -v -O2 -mrvl -mcpu=750 -meabi -mhard-float \
-          -I$DEVKITPRO/libogc/include \
-          -I$DEVKITPRO/libogc/include/ogc \
-          -L$DEVKITPRO/libogc/lib/wii \
-          src/main.cpp -logc -lm -o main.elf
+          # HATA AYIKLAMA: Makefile gerçekten orada mı?
+          ls -l Makefile
+          
+          # Derle
+          make
           
       - name: Upload boot.dol
         uses: actions/upload-artifact@v4
         with:
-          name: boot.dol
+          name: wii-project
           path: boot.dol
