@@ -10,14 +10,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
+      - name: Build Code
         run: |
+          # Yolları tanımla
           export DEVKITPRO=/opt/devkitpro
-          export DEVKITPPC=/opt/devkitpro/devkitPPC
-          export LIBOGC_LIB=/opt/devkitpro/libogc/lib/wii
-          export LIBOGC_INC=/opt/devkitpro/libogc/include
-          make
+          export DEVKITPPC=$DEVKITPRO/devkitPPC
+          export PATH=$PATH:$DEVKITPPC/bin
           
+          # Derleyiciyi (g++) doğrudan çağır ve kütüphaneleri (libogc) manuel ekle
+          powerpc-eabi-g++ -O2 -mrvl -mcpu=750 -meabi -mhard-float \
+          -I$DEVKITPRO/libogc/include \
+          -L$DEVKITPRO/libogc/lib/wii \
+          src/main.cpp -logc -lm -o main.elf
+          
+          # ELF dosyasını DOL dosyasına çevir
+          powerpc-eabi-objcopy -O binary main.elf boot.dol
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
