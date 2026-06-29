@@ -1,4 +1,4 @@
-name: Build Wii
+name: Debug Wii
 
 on: [push]
 
@@ -8,26 +8,9 @@ jobs:
     container: devkitpro/devkitppc:latest
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Build Code
+      - name: List files
         run: |
-          # Yolları tanımla
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITPPC=$DEVKITPRO/devkitPPC
-          export PATH=$PATH:$DEVKITPPC/bin
-          
-          # Derleyiciyi (g++) doğrudan çağır ve kütüphaneleri (libogc) manuel ekle
-          powerpc-eabi-g++ -O2 -mrvl -mcpu=750 -meabi -mhard-float \
-          -I$DEVKITPRO/libogc/include \
-          -L$DEVKITPRO/libogc/lib/wii \
-          src/main.cpp -logc -lm -o main.elf
-          
-          # ELF dosyasını DOL dosyasına çevir
-          powerpc-eabi-objcopy -O binary main.elf boot.dol
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: Wii-PvP-Arena
-          path: boot.dol
+          echo "Derleyiciyi ariyorum..."
+          find / -name "powerpc-eabi-g++" 2>/dev/null || echo "Bulunamadi!"
+          echo "Dizinleri listeliyorum..."
+          ls -R /opt/devkitpro
