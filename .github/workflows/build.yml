@@ -14,15 +14,16 @@ jobs:
       
       - name: Build
         run: |
-          # Derleyicinin ve kütüphanelerin yerini tam olarak belirtiyoruz
-          # -I : Header dosyalarının olduğu ana klasör
+          # DEVKITPRO ana değişkenini tanımla
+          export DEVKITPRO=/opt/devkitpro
+          # Derleyiciye ana kütüphane yolunu -I ile 'recursive' (her alt dizin) tanıt
+          # $DEVKITPRO/libogc/include altına bakmasını zorunlu kılıyoruz
           /opt/devkitpro/devkitPPC/bin/powerpc-eabi-g++ -O2 -mrvl -mcpu=750 -meabi -mhard-float \
-          -I/opt/devkitpro/libogc/include \
-          -I/opt/devkitpro/devkitPPC/powerpc-eabi/include \
-          -L/opt/devkitpro/libogc/lib/wii \
+          -I$DEVKITPRO/libogc/include \
+          -I$DEVKITPRO/libogc/include/ogc \
+          -L$DEVKITPRO/libogc/lib/wii \
           src/main.cpp -logc -lm -o main.elf
           
-          # DOL dosyasına çevir
           /opt/devkitpro/devkitPPC/bin/powerpc-eabi-objcopy -O binary main.elf boot.dol
           
       - name: Upload boot.dol
