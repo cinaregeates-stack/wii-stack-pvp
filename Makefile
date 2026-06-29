@@ -3,11 +3,10 @@ BUILD_DIR = build
 SRC = src/main.cpp
 OBJ = $(SRC:.cpp=.o)
 
-# Devkitpro toolchain prefix (change only if you use a custom toolchain)
-PREFIX ?= powerpc-eabi-
-CXX = $(PREFIX)g++
-CC = $(PREFIX)gcc
-OBJCOPY = $(PREFIX)objcopy
+# Use devkitppc wrapper tools available in the devkitpro container
+CXX ?= devkitppc-g++
+CC ?= devkitppc-gcc
+OBJCOPY ?= devkitppc-objcopy
 
 # Paths - prefer common devkitPro install locations inside the devkitpro container
 DEVKITPPC ?= /opt/devkitpro/devkitPPC
