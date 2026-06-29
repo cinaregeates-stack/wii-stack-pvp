@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   build:
-    # Bu satır en önemli kısım: Sistemin içinde her şey zaten kurulu geliyor
     runs-on: ubuntu-latest
     container: devkitpro/devkitppc:latest
 
@@ -13,9 +12,4 @@ jobs:
 
       - name: Build
         run: |
-          # Ortam değişkenlerini set et
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITPPC=/opt/devkitpro/devkitPPC
-          export PATH=$PATH:$DEVKITPPC/bin
-          # Derlemeyi başlat
           make
