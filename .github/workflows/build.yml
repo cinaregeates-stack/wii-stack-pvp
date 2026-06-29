@@ -8,31 +8,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Bu satır, derleme araçlarının yüklü olduğu hazır ortamı kullanmanı sağlar
+    container: devkitpro/devkitppc:latest
+
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl git build-essential python3
-          curl -L https://apt.fury.io/devkitpro/setup.sh | sudo bash
-          sudo apt-get update
-          sudo apt-get install -y devkitpro-pacman
-          sudo dkp-pacman -Syu --noconfirm
-          sudo dkp-pacman -S --noconfirm devkitPPC libogc wiiuse
-          
       - name: Build
         run: |
+          # Yolları sisteme tanıt
           export DEVKITPRO=/opt/devkitpro
           export DEVKITPPC=/opt/devkitpro/devkitPPC
           export PATH=$PATH:$DEVKITPPC/bin
+          # Derlemeyi çalıştır
           make
           
-      - name: Verify build
-        run: ls -l boot.dol
-        
       - name: Upload boot.dol
         uses: actions/upload-artifact@v4
         with:
-          name: wii-game-dol
+          name: boot.dol
           path: boot.dol
