@@ -8,26 +8,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: devkitpro/devkitppc:latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          set -eux
-          sudo apt-get update
-          sudo apt-get install -y curl git build-essential python3 ca-certificates gnupg lsb-release
-          # download with retries and fail if HTTP error, inspect before running
-          curl -fsSL --retry 3 --retry-delay 5 -o /tmp/setup.sh https://apt.fury.io/devkitpro/setup.sh
-          echo "--- start of downloaded setup.sh (first 80 lines) ---"
-          sed -n '1,80p' /tmp/setup.sh || true
-          echo "--- end of preview ---"
-          sudo bash /tmp/setup.sh
-          sudo apt-get update
-          sudo apt-get install -y devkitpro-pacman
-          sudo dkp-pacman -Syu --noconfirm
-          sudo dkp-pacman -S --noconfirm devkitPPC libogc wiiuse
+      
       - name: Build
         run: |
-          make -j$(nproc)
+          # Derleyiciyi PATH'e ekle
+          export DEVKITPRO=/opt/devkitpro
+          export PATH=$PATH:/opt/devkitpro/devkitPPC/bin:/opt/devkitpro/tools/bin
+          # Build işlemini başlat
+          make
+          
       - name: Upload boot.dol
         uses: actions/upload-artifact@v4
         with:
