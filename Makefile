@@ -1,23 +1,35 @@
-TARGET := boot.dol
-SOURCES := src/main.cpp
-INCLUDES := include
+TARGET = boot
+BUILD_DIR = build
+SRC = src/main.cpp
+OBJ = $(SRC:.cpp=.o)
 
-# Wii / GameCube geliştirme ortamını otomatik tanı
-include $(DEVKITPPC)/base_rules
+# Devkitpro toolchain prefix (change only if you use a custom toolchain)
+PREFIX ?= powerpc-eabi-
+CXX = $(PREFIX)g++
+CC = $(PREFIX)gcc
+OBJCOPY = $(PREFIX)objcopy
 
-CXXFLAGS := -O2 -Wall -mrvl -mcpu=750 -meabi -mhard-float -I$(LIBOGC_INC) -I$(INCLUDES)
-LDFLAGS := -g -L$(LIBOGC_LIB) -logc -lm
+# Paths - prefer common devkitPro install locations inside the devkitpro container
+DEVKITPPC ?= /opt/devkitpro/devkitPPC
+DEVKITPRO ?= /opt/devkitpro
+INCLUDES = -Iinclude -I$(DEVKITPRO)/libogc/include -I$(DEVKITPPC)/libogc/include
+LIBS = -L$(DEVKITPRO)/libogc/lib -logc -lwiiuse -lm
 
-all: $(TARGET)
+CXXFLAGS = -O2 -mno-fused-madd -ffast-math -fno-exceptions -fno-rtti -Wall -std=gnu++11 $(INCLUDES)
+LDFLAGS = $(LIBS)
 
-$(TARGET): $(SOURCES:.cpp=.elf)
-	$(OBJCOPY) -O binary $< $@
-
-%.elf: %.o
-	$(CXX) $(LDFLAGS) $< -o $@
+all: $(TARGET).dol
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(TARGET).elf: $(OBJ)
+	$(CXX) -o $@ $^ $(LDFLAGS)
+
+$(TARGET).dol: $(TARGET).elf
+	$(OBJCOPY) -O binary $< $@
 
 clean:
-	rm -f *.elf *.o *.dol
+	rm -f $(OBJ) $(TARGET).elf $(TARGET).dol
+
+.PHONY: all clean
