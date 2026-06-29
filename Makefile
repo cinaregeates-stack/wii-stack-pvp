@@ -1,34 +1,25 @@
-TARGET = boot
-BUILD_DIR = build
-SRC = src/main.cpp
-OBJ = $(SRC:.cpp=.o)
+# Proje ismi
+TARGET := boot.dol
+SOURCES := src/main.cpp
 
-# Devkitpro toolchain prefix (change only if you use a custom toolchain)
-PREFIX ?= powerpc-eabi-
-CXX = $(PREFIX)g++
-CC = $(PREFIX)gcc
-OBJCOPY = $(PREFIX)objcopy
+# DevkitPro değişkenlerini otomatik al
+include $(DEVKITPPC)/base_rules
 
-# Paths - let user rely on DEVKITPPC environment if set
-DEVKITPPC ?= /opt/devkitpro/devkitPPC
-INCLUDES = -Iinclude -I$(DEVKITPPC)/libogc/include
-LIBS = -L$(DEVKITPPC)/libogc/lib -logc -lwiiuse -lm
+# Derleme ayarları
+CXX := powerpc-eabi-g++
+CXXFLAGS := -g -O2 -Wall -mrvl -mcpu=750 -meabi -mhard-float
+LDFLAGS := -g -L$(LIBOGC_LIB) -L$(LIBOGC_INC) -logc -lm
 
-CXXFLAGS = -O2 -mno-fused-madd -ffast-math -fno-exceptions -fno-rtti -Wall -std=gnu++11 $(INCLUDES)
-LDFLAGS = $(LIBS)
+all: $(TARGET)
 
-all: $(TARGET).dol
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-$(TARGET).elf: $(OBJ)
-	$(CXX) -o $@ $^ $(LDFLAGS)
-
-$(TARGET).dol: $(TARGET).elf
+$(TARGET): $(SOURCES:.cpp=.elf)
 	$(OBJCOPY) -O binary $< $@
 
-clean:
-	rm -f $(OBJ) $(TARGET).elf $(TARGET).dol
+%.elf: %.o
+	$(CXX) $(LDFLAGS) $< -o $@
 
-.PHONY: all clean
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+clean:
+	rm -f *.elf *.o *.dol
