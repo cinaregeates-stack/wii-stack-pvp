@@ -21,6 +21,12 @@ jobs:
           devkitppc-gcc --version || true
       - name: Build
         run: |
+          set -eux
+          # Ensure devkitPro toolchain dirs are in PATH
+          export PATH=/opt/devkitpro/devkitPPC/bin:/opt/devkitpro/tools/bin:$PATH
+          echo "PATH=$PATH"
+          ls -la /opt/devkitpro/devkitPPC/bin || true
+          which powerpc-eabi-g++ || true
           make -j$(nproc)
       - name: Upload boot.dol
         uses: actions/upload-artifact@v4
