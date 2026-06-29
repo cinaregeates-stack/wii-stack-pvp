@@ -14,17 +14,16 @@ jobs:
       
       - name: Build
         run: |
-          # DEVKITPRO ana değişkenini tanımla
           export DEVKITPRO=/opt/devkitpro
-          # Derleyiciye ana kütüphane yolunu -I ile 'recursive' (her alt dizin) tanıt
-          # $DEVKITPRO/libogc/include altına bakmasını zorunlu kılıyoruz
-          /opt/devkitpro/devkitPPC/bin/powerpc-eabi-g++ -O2 -mrvl -mcpu=750 -meabi -mhard-float \
+          # Sadece derlemeyi değil, kütüphane yollarını da ekrana yazdırıyoruz
+          echo "Kütüphane yolu: $DEVKITPRO/libogc/include"
+          
+          # HATA AYIKLAMA: Derleyiciyi daha detaylı (verbose) çalıştır
+          /opt/devkitpro/devkitPPC/bin/powerpc-eabi-g++ -v -O2 -mrvl -mcpu=750 -meabi -mhard-float \
           -I$DEVKITPRO/libogc/include \
           -I$DEVKITPRO/libogc/include/ogc \
           -L$DEVKITPRO/libogc/lib/wii \
           src/main.cpp -logc -lm -o main.elf
-          
-          /opt/devkitpro/devkitPPC/bin/powerpc-eabi-objcopy -O binary main.elf boot.dol
           
       - name: Upload boot.dol
         uses: actions/upload-artifact@v4
