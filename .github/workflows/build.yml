@@ -8,26 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitppc:latest
+    container:
+      image: devkitpro/devkitppc:latest
     steps:
       - uses: actions/checkout@v4
-      
+      - name: Show container and toolchain
+        run: |
+          set -eux
+          echo "OS release:"
+          cat /etc/os-release || true
+          echo "devkitppc-gcc version:"
+          devkitppc-gcc --version || true
       - name: Build
         run: |
-          # Ortam değişkenlerini konteynerin içine sabitle
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITPPC=/opt/devkitpro/devkitPPC
-          export LIBOGC_INC=/opt/devkitpro/libogc/include
-          export LIBOGC_LIB=/opt/devkitpro/libogc/lib/wii
-          
-          # HATA AYIKLAMA: Makefile gerçekten orada mı?
-          ls -l Makefile
-          
-          # Derle
-          make
-          
+          make -j$(nproc)
       - name: Upload boot.dol
         uses: actions/upload-artifact@v4
         with:
-          name: wii-project
+          name: boot.dol
           path: boot.dol
