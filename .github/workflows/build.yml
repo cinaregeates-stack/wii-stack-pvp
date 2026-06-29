@@ -14,9 +14,12 @@ jobs:
       
       - name: Build
         run: |
-          # Derleyiciyi doğrudan kullan (Makefile'ı tamamen atladık)
+          # Derleyicinin ve kütüphanelerin yerini tam olarak belirtiyoruz
+          # -I : Header dosyalarının olduğu ana klasör
           /opt/devkitpro/devkitPPC/bin/powerpc-eabi-g++ -O2 -mrvl -mcpu=750 -meabi -mhard-float \
-          -I/opt/devkitpro/libogc/include -L/opt/devkitpro/libogc/lib/wii \
+          -I/opt/devkitpro/libogc/include \
+          -I/opt/devkitpro/devkitPPC/powerpc-eabi/include \
+          -L/opt/devkitpro/libogc/lib/wii \
           src/main.cpp -logc -lm -o main.elf
           
           # DOL dosyasına çevir
