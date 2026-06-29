@@ -1,1 +1,30 @@
-a
+name: Build Wii boot.dol
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl git build-essential python3
+          # Install devkitPro dkp-pacman non-interactively
+          curl -L https://apt.fury.io/devkitpro/setup.sh | sudo bash
+          sudo apt-get update
+          sudo apt-get install -y devkitpro-pacman
+          sudo dkp-pacman -Syu --noconfirm
+          sudo dkp-pacman -S --noconfirm devkitPPC libogc wiiuse
+      - name: Build
+        run: |
+          make -j$(nproc)
+      - name: Upload boot.dol
+        uses: actions/upload-artifact@v4
+        with:
+          name: boot.dol
+          path: boot.dol
