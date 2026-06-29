@@ -1,16 +1,38 @@
-name: Debug Wii
+name: Build Wii boot.dol
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: devkitpro/devkitppc:latest
-
     steps:
-      - name: List files
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
         run: |
-          echo "Derleyiciyi ariyorum..."
-          find / -name "powerpc-eabi-g++" 2>/dev/null || echo "Bulunamadi!"
-          echo "Dizinleri listeliyorum..."
-          ls -R /opt/devkitpro
+          sudo apt-get update
+          sudo apt-get install -y curl git build-essential python3
+          curl -L https://apt.fury.io/devkitpro/setup.sh | sudo bash
+          sudo apt-get update
+          sudo apt-get install -y devkitpro-pacman
+          sudo dkp-pacman -Syu --noconfirm
+          sudo dkp-pacman -S --noconfirm devkitPPC libogc wiiuse
+          
+      - name: Build
+        run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITPPC=/opt/devkitpro/devkitPPC
+          export PATH=$PATH:$DEVKITPPC/bin
+          make
+          
+      - name: Verify build
+        run: ls -l boot.dol
+        
+      - name: Upload boot.dol
+        uses: actions/upload-artifact@v4
+        with:
+          name: wii-game-dol
+          path: boot.dol
